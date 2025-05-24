@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Leave Management App</title>
+<style>
+  /* Reset and base */
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-bottom: 40px;
+  }
+  .container {
+    background: white;
+    width: 90%;
+    max-width: 900px;
+    margin: 40px auto 60px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background: #3f51b5;
+    color: #fff;
+    padding: 18px 30px;
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  main {
+    padding: 24px 30px;
+    flex: 1;
+  }
+
+  h2 {
+    margin-top: 0;
+    color: #3f51b5;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  /* Forms */
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #444;
+  }
+  input[type="text"],
+  input[type="password"],
+  input[type="date"],
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 18px;
+    border-radius: 6px;
+    border: 1.8px solid #c1c8ec;
+    font-size: 15px;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]:focus,
+  input[type="password"]:focus,
+  input[type="date"]:focus,
+  select:focus {
+    outline: none;
+    border-color: #3f51b5;
+  }
+  button {
+    background: #3f51b5;
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    padding: 12px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+  }
+  button:hover:not(:disabled) {
+    background: #2c3ab0;
+  }
+  button:disabled {
+    background: #9aa3d6;
+    cursor: not-allowed;
+  }
+
+  .error-message {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    font-weight: 600;
+  }
+
+  /* Login/Register toggle */
+  .toggle-auth {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .toggle-auth button {
+    flex: 1;
+    border-radius: 6px 6px 0 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .toggle-auth button.active {
+    background: #3f51b5;
+    color: white;
+    cursor: default;
+  }
+  .toggle-auth button:not(.active) {
+    background: #e0e4fe;
+    color: #3f51b5;
+  }
+
+  /* Dashboard */
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+  .dashboard-header h2 {
+    margin-bottom: 0;
+  }
+  .btn-logout {
+    background: #e53935;
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  .btn-logout:hover {
+    background: #b02824;
+  }
+
+  /* Employee dashboard */
+  .section {
+    margin-bottom: 30px;
+  }
+  .credits {
+    background: #e3e9fc;
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-weight: 700;
+    font-size: 16px;
+    color: #324fa6;
+    display: flex;
+    justify-content: space-around;
+  }
+  .credits div {
+    flex: 1;
+    text-align: center;
+  }
+  form.leave-form {
+    background: #f0f3ff;
+    padding: 20px 22px;
+    border-radius: 12px;
+  }
+  form.leave-form label {
+    margin-top: 12px;
+  }
+  .leave-applications {
+    max-height: 240px;
+    overflow-y: auto;
+    background: #f8faff;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid #ccd4ff;
+  }
+  table.leave-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  table.leave-table th,
+  table.leave-table td {
+    border-bottom: 1px solid #d8dbf7;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  table.leave-table th {
+    background: #d0d4ff;
+    color: #2e3aaf;
+  }
+  .status-approved {
+    color: #2e7d32;
+    font-weight: 700;
+  }
+  .status-pending {
+    color: #ff9800;
+    font-weight: 700;
+  }
+  .status-denied {
+    color: #c62828;
+    font-weight: 700;
+  }
+
+  /* Activity log */
+  .activity-log {
+    max-height: 230px;
+    overflow-y: auto;
+    background: #f5f7ff;
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid #c7cef8;
+    font-size: 14px;
+    color: #404e9c;
+  }
+  .activity-log p {
+    margin: 8px 0;
+  }
+  .activity-time {
+    color: #8899cc;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  /* Admin dashboard */
+  .admin-tables {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 24px;
+  }
+  .admin-section {
+    background: #f2f5ff;
+    border-radius: 12px;
+    padding: 18px 20px;
+    max-height: 430px;
+    overflow-y: auto;
+  }
+  table.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14.7px;
+  }
+  table.admin-table th,
+  table.admin-table td {
+    border-bottom: 1px solid #d6dbf7;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  table.admin-table th {
+    background: #c7d0ff;
+    color: #2a37a7;
+  }
+  .btn-approve,
+  .btn-deny {
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 13.5px;
+    user-select: none;
+  }
+  .btn-approve {
+    background: #388e3c;
+    color: #fff;
+    margin-right: 12px;
+  }
+  .btn-approve:hover {
+    background: #2e732e;
+  }
+  .btn-deny {
+    background: #c62828;
+    color: #fff;
+  }
+  .btn-deny:hover {
+    background: #9e1e1e;
+  }
+  .btn-update-credit {
+    background: #3f51b5;
+    color: white;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 13.5px;
+    user-select: none;
+    margin-top: 8px;
+  }
+  .btn-update-credit:disabled {
+    background: #919fdc;
+    cursor: not-allowed;
+  }
+  .input-credit {
+    width: 60px;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 14px;
+    border: 1.6px solid #888;
+    margin-left: 8px;
+    text-align: center;
+  }
+
+  /* Responsive */
+  @media (max-width:700px) {
+    .admin-tables {
+      display: block;
+    }
+    .admin-section {
+      max-height: none;
+      margin-bottom: 24px;
+    }
+  }
+
+  footer {
+    text-align: center;
+    font-size: 13px;
+    padding: 14px 10px;
+    color: #555;
+  }
+  a {
+    color: #3f51b5;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Leave Management Application">
+    <header>Leave Management App</header>
+    <main id="mainContent">
+      <!-- Dynamic content will be injected here by JS -->
+    </main>
+  </div>
+<script>
+(() => {
+  // Data keys in localStorage
+  const LS_USERS = 'leaveMgmt_users';
+  const LS_LEAVE_APPS = 'leaveMgmt_leaveApplications';
+  const LS_ADMIN_ACTIVITIES = 'leaveMgmt_adminActivities';
+  const LS_CURRENT_USER = 'leaveMgmt_currentUser';
+
+  // Leave Types and their credit keys
+  const LEAVE_TYPES = {
+    sick: 'sickLeave',
+    vacation: 'vacationLeave',
+    salary: 'salaryConversion'
+  };
+
+  // Default leave credits for new employees
+  const DEFAULT_SICK_LEAVE = 15;
+  const DEFAULT_VACATION_LEAVE = 15;
+
+  //////////////////////
+  // UTILITIES
+  //////////////////////
+
+  function saveUsers(users) {
+    localStorage.setItem(LS_USERS, JSON.stringify(users));
+  }
+
+  function getUsers() {
+    const u = localStorage.getItem(LS_USERS);
+    if (!u) return [];
+    try {
+      return JSON.parse(u);
+    } catch {
+      return [];
+    }
+  }
+
+  function saveLeaveApplications(apps) {
+    localStorage.setItem(LS_LEAVE_APPS, JSON.stringify(apps));
+  }
+
+  function getLeaveApplications() {
+    const a = localStorage.getItem(LS_LEAVE_APPS);
+    if (!a) return [];
+    try {
+      return JSON.parse(a);
+    } catch {
+      return [];
+    }
+  }
+
+  function saveAdminActivities(activities) {
+    localStorage.setItem(LS_ADMIN_ACTIVITIES, JSON.stringify(activities));
+  }
+
+  function getAdminActivities() {
+    const a = localStorage.getItem(LS_ADMIN_ACTIVITIES);
+    if (!a) return [];
+    try {
+      return JSON.parse(a);
+    } catch {
+      return [];
+    }
+  }
+
+  function saveCurrentUser(user) {
+    if (user) {
+      localStorage.setItem(LS_CURRENT_USER, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(LS_CURRENT_USER);
+    }
+  }
+
+  function getCurrentUser() {
+    const c = localStorage.getItem(LS_CURRENT_USER);
+    if (!c) return null;
+    try {
+      return JSON.parse(c);
+    } catch {
+      return null;
+    }
+  }
+
+  function hashPassword(password) {
+    // Simple hash for demo; NOT secure, just basic example
+    let hash = 0, i, chr;
+    for (i = 0; i < password.length; i++) {
+      chr   = password.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + chr;
+      hash |= 0;
+    }
+    return hash.toString();
+  }
+
+  function generateUID() {
+    // Simple UID for demo
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    return d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' });
+  }
+
+  function formatDateTime(dateTimeStr) {
+    if (!dateTimeStr) return '';
+    const d = new Date(dateTimeStr);
+    return d.toLocaleString(undefined, { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+
+  function sortByDateDesc(arr, dateProp) {
+    return arr.sort((a,b) => new Date(b[dateProp]) - new Date(a[dateProp]));
+  }
+
+  // Add Activity log item
+  function addAdminActivity(type, message, userId = null) {
+    const acts = getAdminActivities();
+    const now = new Date().toISOString();
+    acts.push({
+      id: generateUID(),
+      type,
+      message,
+      date: now,
+      userId,
+    });
+    saveAdminActivities(acts);
+  }
+
+  // Find user by username
+  function findUserByUsername(username) {
+    return getUsers().find(u => u.username.toLowerCase() === username.toLowerCase());
+  }
+
+  // Authenticate user by username and password
+  function authenticateUser(username, password) {
+    const user = findUserByUsername(username);
+    if (!user) return null;
+    if (user.password !== hashPassword(password)) return null;
+    return user;
+  }
+
+  // Register user
+  function registerUser(username, password, role) {
+    const users = getUsers();
+    if (findUserByUsername(username)) {
+      throw new Error('Username already exists');
+    }
+    const id = generateUID();
+    const newUser = {
+      id,
+      username,
+      password: hashPassword(password),
+      role,
+      registeredAt: new Date().toISOString(),
+    };
+    if (role === 'employee') {
+      newUser.leaveCredits = {
+        sickLeave: DEFAULT_SICK_LEAVE,
+        vacationLeave: DEFAULT_VACATION_LEAVE,
+      };
+    }
+    users.push(newUser);
+    saveUsers(users);
+    return newUser;
+  }
+
+  // Update leave credits of an employee
+  function updateEmployeeCredits(userId, sickLeave, vacationLeave) {
+    const users = getUsers();
+    const user = users.find(u => u.id === userId && u.role === 'employee');
+    if (!user) return false;
+    user.leaveCredits.sickLeave = Number(sickLeave);
+    user.leaveCredits.vacationLeave = Number(vacationLeave);
+    saveUsers(users);
+    return true;
+  }
+
+  // Get leave credits for employee by id
+  function getEmployeeLeaveCredits(userId) {
+    const user = getUsers().find(u => u.id === userId && u.role === 'employee');
+    if (!user) return null;
+    return {...user.leaveCredits};
+  }
+
+  //////////////////////
+  // RENDERING
+  //////////////////////
+
+  const mainContainer = document.getElementById('mainContent');
+
+  function clearMain() {
+    mainContainer.innerHTML = '';
+  }
+
+  //////////////////////
+  // AUTH: Login/Register
+  //////////////////////
+
+  function renderAuth() {
+    clearMain();
+
+    // Create toggle buttons for login/register
+    const toggleDiv = document.createElement('div');
+    toggleDiv.className = 'toggle-auth';
+
+    const btnLogin = document.createElement('button');
+    btnLogin.textContent = 'Login';
+    btnLogin.classList.add('active');
+    btnLogin.setAttribute('type', 'button');
+
+    const btnRegister = document.createElement('button');
+    btnRegister.textContent = 'Register';
+    btnRegister.setAttribute('type', 'button');
+
+    toggleDiv.appendChild(btnLogin);
+    toggleDiv.appendChild(btnRegister);
+    mainContainer.appendChild(toggleDiv);
+
+    const formContainer = document.createElement('div');
+    mainContainer.appendChild(formContainer);
+
+    // Handle toggle functionality
+    btnLogin.addEventListener('click', () => {
+      btnLogin.classList.add('active');
+      btnRegister.classList.remove('active');
+      renderLoginForm(formContainer);
+    });
+    btnRegister.addEventListener('click', () => {
+      btnRegister.classList.add('active');
+      btnLogin.classList.remove('active');
+      renderRegisterForm(formContainer);
+    });
+
+    renderLoginForm(formContainer);
+  }
+
+  function renderLoginForm(container) {
+    container.innerHTML = '';
+
+    const h2 = document.createElement('h2');
+    h2.textContent = 'Login';
+    container.appendChild(h2);
+
+    const form = document.createElement('form');
+    form.setAttribute('aria-label', 'Login form');
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.style.display = 'none';
+    container.appendChild(errorDiv);
+
+    // Role select
+    const labelRole = document.createElement('label');
+    labelRole.setAttribute('for', 'login-role');
+    labelRole.textContent = 'I am a:';
+    form.appendChild(labelRole);
+    const selectRole = document.createElement('select');
+    selectRole.id = 'login-role';
+    selectRole.name = 'role';
+    selectRole.required = true;
+    const optionEmp = document.createElement('option');
+    optionEmp.value = 'employee';
+    optionEmp.textContent = 'Employee';
+    selectRole.appendChild(optionEmp);
+    const optionAdmin = document.createElement('option');
+    optionAdmin.value = 'admin';
+    optionAdmin.textContent = 'Admin';
+    selectRole.appendChild(optionAdmin);
+    form.appendChild(selectRole);
+
+    // Username
+    const labelUsername = document.createElement('label');
+    labelUsername.setAttribute('for', 'login-username');
+    labelUsername.textContent = 'Username:';
+    form.appendChild(labelUsername);
+    const inputUsername = document.createElement('input');
+    inputUsername.type = 'text';
+    inputUsername.name = 'username';
+    inputUsername.id = 'login-username';
+    inputUsername.required = true;
+    inputUsername.autocomplete = 'username';
+    form.appendChild(inputUsername);
+
+    // Password
+    const labelPassword = document.createElement('label');
+    labelPassword.setAttribute('for', 'login-password');
+    labelPassword.textContent = 'Password:';
+    form.appendChild(labelPassword);
+    const inputPassword = document.createElement('input');
+    inputPassword.type = 'password';
+    inputPassword.name = 'password';
+    inputPassword.id = 'login-password';
+    inputPassword.required = true;
+    inputPassword.autocomplete = 'current-password';
+    form.appendChild(inputPassword);
+
+    const submitBtn = document.createElement('button');
+    submitBtn.type = 'submit';
+    submitBtn.textContent = 'Login';
+    form.appendChild(submitBtn);
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      errorDiv.style.display = 'none';
+
+      const role = selectRole.value;
+      const username = inputUsername.value.trim();
+      const password = inputPassword.value;
+      if (!username || !password) {
+        errorDiv.textContent = 'Please enter username and password.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      const user = authenticateUser(username, password);
+      if (!user || user.role !== role) {
+        errorDiv.textContent = 'Invalid username, password, or role.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      saveCurrentUser(user);
+      renderDashboard(user);
+    });
+
+    container.appendChild(form);
+  }
+
+  function renderRegisterForm(container) {
+    container.innerHTML = '';
+
+    const h2 = document.createElement('h2');
+    h2.textContent = 'Register';
+    container.appendChild(h2);
+
+    const form = document.createElement('form');
+    form.setAttribute('aria-label', 'Register form');
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.style.display = 'none';
+    container.appendChild(errorDiv);
+
+    // Role select
+    const labelRole = document.createElement('label');
+    labelRole.setAttribute('for', 'register-role');
+    labelRole.textContent = 'I want to register as:';
+    form.appendChild(labelRole);
+    const selectRole = document.createElement('select');
+    selectRole.id = 'register-role';
+    selectRole.name = 'role';
+    selectRole.required = true;
+    const optionEmp = document.createElement('option');
+    optionEmp.value = 'employee';
+    optionEmp.textContent = 'Employee';
+    selectRole.appendChild(optionEmp);
+    const optionAdmin = document.createElement('option');
+    optionAdmin.value = 'admin';
+    optionAdmin.textContent = 'Admin';
+    selectRole.appendChild(optionAdmin);
+    form.appendChild(selectRole);
+
+    // Username
+    const labelUsername = document.createElement('label');
+    labelUsername.setAttribute('for', 'register-username');
+    labelUsername.textContent = 'Username:';
+    form.appendChild(labelUsername);
+    const inputUsername = document.createElement('input');
+    inputUsername.type = 'text';
+    inputUsername.name = 'username';
+    inputUsername.id = 'register-username';
+    inputUsername.required = true;
+    inputUsername.autocomplete = 'username';
+    form.appendChild(inputUsername);
+
+    // Password
+    const labelPassword = document.createElement('label');
+    labelPassword.setAttribute('for', 'register-password');
+    labelPassword.textContent = 'Password:';
+    form.appendChild(labelPassword);
+    const inputPassword = document.createElement('input');
+    inputPassword.type = 'password';
+    inputPassword.name = 'password';
+    inputPassword.id = 'register-password';
+    inputPassword.required = true;
+    inputPassword.autocomplete = 'new-password';
+    form.appendChild(inputPassword);
+
+    // Confirm password
+    const labelConfirm = document.createElement('label');
+    labelConfirm.setAttribute('for', 'register-confirm-password');
+    labelConfirm.textContent = 'Confirm Password:';
+    form.appendChild(labelConfirm);
+    const inputConfirm = document.createElement('input');
+    inputConfirm.type = 'password';
+    inputConfirm.name = 'confirmPassword';
+    inputConfirm.id = 'register-confirm-password';
+    inputConfirm.required = true;
+    inputConfirm.autocomplete = 'new-password';
+    form.appendChild(inputConfirm);
+
+    const submitBtn = document.createElement('button');
+    submitBtn.type = 'submit';
+    submitBtn.textContent = 'Register';
+    form.appendChild(submitBtn);
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      errorDiv.style.display = 'none';
+
+      const role = selectRole.value;
+      const username = inputUsername.value.trim();
+      const password = inputPassword.value;
+      const confirmPassword = inputConfirm.value;
+
+      if (!username || !password || !confirmPassword) {
+        errorDiv.textContent = 'Please fill in all fields.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errorDiv.textContent = 'Passwords do not match.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        const newUser = registerUser(username, password, role);
+        saveCurrentUser(newUser);
+        // Log new admin registration for transparency
+        if (role === 'admin') {
+          addAdminActivity('new-admin', `New admin registered: ${username}`, newUser.id);
+        }
+        renderDashboard(newUser);
+      } catch (err) {
+        errorDiv.textContent = err.message;
+        errorDiv.style.display = 'block';
+      }
+    });
+
+    container.appendChild(form);
+  }
+
+  //////////////////////
+  // DASHBOARD
+  //////////////////////
+
+  function renderDashboard(user) {
+    clearMain();
+
+    const headerDiv = document.createElement('div');
+    headerDiv.className = 'dashboard-header';
+
+    const welcome = document.createElement('h2');
+    welcome.textContent = `Welcome, ${user.username} (${user.role})`;
+    headerDiv.appendChild(welcome);
+
+    const logoutBtn = document.createElement('button');
+    logoutBtn.textContent = 'Logout';
+    logoutBtn.className = 'btn-logout';
+    logoutBtn.addEventListener('click', () => {
+      saveCurrentUser(null);
+      renderAuth();
+    });
+    headerDiv.appendChild(logoutBtn);
+
+    mainContainer.appendChild(headerDiv);
+
+    if (user.role === 'employee') {
+      renderEmployeeDashboard(user);
+    } else if (user.role === 'admin') {
+      renderAdminDashboard(user);
+    }
+  }
+
+  //////////////////////
+  // EMPLOYEE DASHBOARD
+  //////////////////////
+
+  function renderEmployeeDashboard(user) {
+    ////// Leave Credits Section //////
+
+    const creditsSection = document.createElement('section');
+    creditsSection.className = 'section';
+
+    const creditsTitle = document.createElement('h2');
+    creditsTitle.textContent = 'Your Leave Credits';
+    creditsSection.appendChild(creditsTitle);
+
+    const creditsDiv = document.createElement('div');
+    creditsDiv.className = 'credits';
+
+    const sickDiv = document.createElement('div');
+    sickDiv.innerHTML = `<strong>Sick Leave</strong><br />${user.leaveCredits?.sickLeave ?? DEFAULT_SICK_LEAVE} days`;
+    creditsDiv.appendChild(sickDiv);
+
+    const vacDiv = document.createElement('div');
+    vacDiv.innerHTML = `<strong>Vacation Leave</strong><br />${user.leaveCredits?.vacationLeave ?? DEFAULT_VACATION_LEAVE} days`;
+    creditsDiv.appendChild(vacDiv);
+
+    creditsSection.appendChild(creditsDiv);
+
+    mainContainer.appendChild(creditsSection);
+
+    ////// Leave Application Form //////
+
+    const leaveFormSection = document.createElement('section');
+    leaveFormSection.className = 'section';
+
+    const leaveFormTitle = document.createElement('h2');
+    leaveFormTitle.textContent = 'File a Leave Application';
+    leaveFormSection.appendChild(leaveFormTitle);
+
+    const form = document.createElement('form');
+    form.className = 'leave-form';
+    form.setAttribute('aria-label', 'Leave application form');
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.style.display = 'none';
+    leaveFormSection.appendChild(errorDiv);
+
+    // Leave type
+    const labelType = document.createElement('label');
+    labelType.setAttribute('for', 'leave-type');
+    labelType.textContent = 'Leave Type:';
+    form.appendChild(labelType);
+
+    const selectType = document.createElement('select');
+    selectType.id = 'leave-type';
+    selectType.name = 'leaveType';
+    selectType.required = true;
+
+    const optionSick = document.createElement('option');
+    optionSick.value = 'sick';
+    optionSick.textContent = `Sick Leave (Use Sick Leave Credit)`;
+    selectType.appendChild(optionSick);
+
+    const optionVacation = document.createElement('option');
+    optionVacation.value = 'vacation';
+    optionVacation.textContent = `Vacation Leave (Use Vacation Leave Credit)`;
+    selectType.appendChild(optionVacation);
+
+    const optionSalary = document.createElement('option');
+    optionSalary.value = 'salary';
+    optionSalary.textContent = `Salary Conversion (No Leave Credit Used)`;
+    selectType.appendChild(optionSalary);
+
+    form.appendChild(selectType);
+
+    // Start date
+    const labelStart = document.createElement('label');
+    labelStart.setAttribute('for', 'leave-start');
+    labelStart.textContent = 'Start Date:';
+    form.appendChild(labelStart);
+
+    const inputStart = document.createElement('input');
+    inputStart.type = 'date';
+    inputStart.id = 'leave-start';
+    inputStart.name = 'startDate';
+    inputStart.required = true;
+    inputStart.min = new Date().toISOString().slice(0, 10);
+    form.appendChild(inputStart);
+
+    // End date
+    const labelEnd = document.createElement('label');
+    labelEnd.setAttribute('for', 'leave-end');
+    labelEnd.textContent = 'End Date:';
+    form.appendChild(labelEnd);
+
+    const inputEnd = document.createElement('input');
+    inputEnd.type = 'date';
+    inputEnd.id = 'leave-end';
+    inputEnd.name = 'endDate';
+    inputEnd.required = true;
+    inputEnd.min = new Date().toISOString().slice(0, 10);
+    form.appendChild(inputEnd);
+
+    // Reason
+    const labelReason = document.createElement('label');
+    labelReason.setAttribute('for', 'leave-reason');
+    labelReason.textContent = 'Reason (optional):';
+    form.appendChild(labelReason);
+
+    const inputReason = document.createElement('input');
+    inputReason.type = 'text';
+    inputReason.id = 'leave-reason';
+    inputReason.name = 'reason';
+    inputReason.placeholder = 'Optional...';
+    form.appendChild(inputReason);
+
+    const submitBtn = document.createElement('button');
+    submitBtn.type = 'submit';
+    submitBtn.textContent = 'Submit Leave Application';
+    form.appendChild(submitBtn);
+
+    // Form submit handler
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      errorDiv.style.display = 'none';
+
+      const leaveType = selectType.value;
+      const startDate = inputStart.value;
+      const endDate = inputEnd.value;
+      const reason = inputReason.value.trim();
+
+      // Basic validations
+      if (!startDate || !endDate) {
+        errorDiv.textContent = 'Please select start and end dates.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+      if (endDate < startDate) {
+        errorDiv.textContent = 'End date cannot be before start date.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      // Calculate days requested
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const dayCount = Math.floor((end - start) / (1000*60*60*24)) + 1;
+
+      // Check leave credits if applicable
+      if (leaveType === 'sick') {
+        if ((user.leaveCredits?.sickLeave ?? 0) < dayCount) {
+          errorDiv.textContent = `Insufficient sick leave credits. You have ${(user.leaveCredits?.sickLeave ?? 0)} day(s).`;
+          errorDiv.style.display = 'block';
+          return;
+        }
+      }
+      if (leaveType === 'vacation') {
+        if ((user.leaveCredits?.vacationLeave ?? 0) < dayCount) {
+          errorDiv.textContent = `Insufficient vacation leave credits. You have ${(user.leaveCredits?.vacationLeave ?? 0)} day(s).`;
+          errorDiv.style.display = 'block';
+          return;
+        }
+      }
+
+      // Save leave application with pending status
+      const leaveApps = getLeaveApplications();
+
+      leaveApps.push({
+        id: generateUID(),
+        userId: user.id,
+        username: user.username,
+        leaveType,
+        startDate,
+        endDate,
+        dayCount,
+        reason,
+        status: 'pending',
+        appliedAt: new Date().toISOString(),
+        reviewedAt: null,
+        adminId: null,
+        adminName: null,
+      });
+
+      saveLeaveApplications(leaveApps);
+
+      errorDiv.style.display = 'none';
+
+      addAdminActivity('new-leave', `Leave application submitted by ${user.username} (${leaveType}): ${formatDate(startDate)} to ${formatDate(endDate)}`, user.id);
+
+      // Show success alert
+      alert('Your leave application was submitted successfully!');
+
+      // Clear form
+      form.reset();
+      inputStart.min = new Date().toISOString().slice(0, 10);
+      inputEnd.min = new Date().toISOString().slice(0, 10);
+
+      // Refresh data (refetch user and re-render dashboard)
+      refreshUserDataAndRerender(user.id);
+    });
+
+    leaveFormSection.appendChild(form);
+
+    mainContainer.appendChild(leaveFormSection);
+
+    ////// Leave Application Status and Activity Log //////
+
+    const statusSection = document.createElement('section');
+    statusSection.className = 'section';
+
+    const statusTitle = document.createElement('h2');
+    statusTitle.textContent = 'Your Leave Applications';
+    statusSection.appendChild(statusTitle);
+
+    const leaveApps = getLeaveApplications().filter(app => app.userId === user.id);
+    const pendingCount = leaveApps.filter(a => a.status === 'pending').length;
+
+    if (leaveApps.length === 0) {
+      const noApps = document.createElement('p');
+      noApps.textContent = 'You have not filed any leave applications yet.';
+      statusSection.appendChild(noApps);
+    } else {
+      const table = document.createElement('table');
+      table.className = 'leave-table';
+      table.setAttribute('aria-label', 'Table showing your leave applications');
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      ['Type', 'Start Date', 'End Date', 'Days', 'Status', 'Reviewed By', 'Reviewed At'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+      const tbody = document.createElement('tbody');
+
+      sortByDateDesc(leaveApps, 'appliedAt').forEach(app => {
+        const tr = document.createElement('tr');
+
+        const tdType = document.createElement('td');
+        tdType.textContent = app.leaveType.charAt(0).toUpperCase() + app.leaveType.slice(1);
+        tr.appendChild(tdType);
+
+        const tdStart = document.createElement('td');
+        tdStart.textContent = formatDate(app.startDate);
+        tr.appendChild(tdStart);
+
+        const tdEnd = document.createElement('td');
+        tdEnd.textContent = formatDate(app.endDate);
+        tr.appendChild(tdEnd);
+
+        const tdDays = document.createElement('td');
+        tdDays.textContent = app.dayCount;
+        tr.appendChild(tdDays);
+
+        const tdStatus = document.createElement('td');
+        tdStatus.textContent = app.status.charAt(0).toUpperCase() + app.status.slice(1);
+        tdStatus.className = app.status === 'approved' ? 'status-approved' :
+                             app.status === 'pending' ? 'status-pending' :
+                             'status-denied';
+        tr.appendChild(tdStatus);
+
+        const tdAdmin = document.createElement('td');
+        tdAdmin.textContent = app.adminName ?? '-';
+        tr.appendChild(tdAdmin);
+
+        const tdReviewedAt = document.createElement('td');
+        tdReviewedAt.textContent = app.reviewedAt ? formatDateTime(app.reviewedAt) : '-';
+        tr.appendChild(tdReviewedAt);
+
+        tbody.appendChild(tr);
+      });
+
+      table.appendChild(tbody);
+      const wrapper = document.createElement('div');
+      wrapper.className = 'leave-applications';
+      wrapper.appendChild(table);
+
+      statusSection.appendChild(wrapper);
+    }
+
+    mainContainer.appendChild(statusSection);
+
+
+    ////// Activities Log //////
+
+    const activitySection = document.createElement('section');
+    activitySection.className = 'section';
+
+    const activityTitle = document.createElement('h2');
+    activityTitle.textContent = 'Admin Activities (Leave updates & New Admin registrations)';
+    activitySection.appendChild(activityTitle);
+
+    const allActs = getAdminActivities();
+
+    // Filter to only activities related to this user or all new-admin (for transparency)
+    const filtered = allActs.filter(act => {
+      return act.userId === user.id || act.type === 'new-admin' || act.type === 'new-leave' || act.type === 'update-leave';
+    });
+    // Sort reverse chronological
+    sortByDateDesc(filtered, 'date');
+
+    if (filtered.length === 0) {
+      const noActs = document.createElement('p');
+      noActs.textContent = 'No activities yet.';
+      activitySection.appendChild(noActs);
+    } else {
+      const divAct = document.createElement('div');
+      divAct.className = 'activity-log';
+
+      filtered.forEach(act => {
+        const p = document.createElement('p');
+        p.textContent = act.message || 'Activity update';
+        const spanTime = document.createElement('span');
+        spanTime.className = 'activity-time';
+        spanTime.textContent = ' (' + formatDateTime(act.date) + ')';
+        p.appendChild(spanTime);
+        divAct.appendChild(p);
+      });
+
+      activitySection.appendChild(divAct);
+    }
+
+    mainContainer.appendChild(activitySection);
+  }
+
+  // Refresh user data from storage (to get updated leaveCredits) and rerender dashboard
+  function refreshUserDataAndRerender(userId) {
+    const user = getUsers().find(u => u.id === userId);
+    if (!user) {
+      // If user missing, logout to auth screen
+      saveCurrentUser(null);
+      renderAuth();
+      return;
+    }
+    saveCurrentUser(user);
+    renderDashboard(user);
+  }
+
+  //////////////////////
+  // ADMIN DASHBOARD
+  //////////////////////
+
+  function renderAdminDashboard(user) {
+    const adminSection = document.createElement('section');
+
+    // Pending leave applications to approve/deny
+    const leaveAppsSection = document.createElement('section');
+    leaveAppsSection.className = 'admin-section';
+    leaveAppsSection.style.maxHeight = '380px';
+
+    const leaveAppsTitle = document.createElement('h2');
+    leaveAppsTitle.textContent = 'Employee Leave Applications';
+    leaveAppsSection.appendChild(leaveAppsTitle);
+
+    const leaveApps = getLeaveApplications();
+
+    // Filter pending first, then all others
+    const pendingApps = leaveApps.filter(app => app.status === 'pending');
+    const nonPendingApps = leaveApps.filter(app => app.status !== 'pending');
+
+    const leaveTable = document.createElement('table');
+    leaveTable.className = 'admin-table';
+    leaveTable.setAttribute('aria-label', 'Table showing employee leave applications');
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    ['Employee', 'Type', 'Start', 'End', 'Days', 'Status', 'Admin', 'Actions'].forEach(text => {
+      const th = document.createElement('th');
+      th.textContent = text;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    leaveTable.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+
+    // Helper to create a button for approve/deny
+    function createActionBtn(text, cls, handler) {
+      const btn = document.createElement('button');
+      btn.textContent = text;
+      btn.className = cls;
+      btn.type = 'button';
+      btn.addEventListener('click', handler);
+      return btn;
+    }
+
+    // Render apps
+    function renderAppsRow(app) {
+      const tr = document.createElement('tr');
+
+      const tdEmp = document.createElement('td');
+      tdEmp.textContent = app.username;
+      tr.appendChild(tdEmp);
+
+      const tdType = document.createElement('td');
+      tdType.textContent = app.leaveType.charAt(0).toUpperCase() + app.leaveType.slice(1);
+      tr.appendChild(tdType);
+
+      const tdStart = document.createElement('td');
+      tdStart.textContent = formatDate(app.startDate);
+      tr.appendChild(tdStart);
+
+      const tdEnd = document.createElement('td');
+      tdEnd.textContent = formatDate(app.endDate);
+      tr.appendChild(tdEnd);
+
+      const tdDays = document.createElement('td');
+      tdDays.textContent = app.dayCount;
+      tr.appendChild(tdDays);
+
+      const tdStatus = document.createElement('td');
+      tdStatus.textContent = app.status.charAt(0).toUpperCase() + app.status.slice(1);
+      tdStatus.className = app.status === 'approved' ? 'status-approved' :
+                           app.status === 'pending' ? 'status-pending' :
+                           'status-denied';
+      tr.appendChild(tdStatus);
+
+      const tdAdminName = document.createElement('td');
+      tdAdminName.textContent = app.adminName ?? '-';
+      tr.appendChild(tdAdminName);
+
+      const tdActions = document.createElement('td');
+
+      if (app.status === 'pending') {
+        const approveBtn = createActionBtn('Approve', 'btn-approve', () => {
+          // Approve leave
+          approveLeaveApplication(app.id, user);
+        });
+        const denyBtn = createActionBtn('Deny', 'btn-deny', () => {
+          // Deny leave
+          denyLeaveApplication(app.id, user);
+        });
+        tdActions.appendChild(approveBtn);
+        tdActions.appendChild(denyBtn);
+      } else {
+        tdActions.textContent = '-';
+      }
+      tr.appendChild(tdActions);
+
+      tbody.appendChild(tr);
+    }
+
+    // Add pending apps first
+    pendingApps.forEach(renderAppsRow);
+    // Then other leave apps
+    nonPendingApps.forEach(renderAppsRow);
+
+    leaveTable.appendChild(tbody);
+    leaveAppsSection.appendChild(leaveTable);
+
+    ////////////////////////
+    // Leave Credits Management
+    ////////////////////////
+
+    const leaveCreditsSection = document.createElement('section');
+    leaveCreditsSection.className = 'admin-section';
+
+    const leaveCreditsTitle = document.createElement('h2');
+    leaveCreditsTitle.textContent = 'Employee Leave Credits Management';
+    leaveCreditsSection.appendChild(leaveCreditsTitle);
+
+    // Input to select employee by username or list all employees
+    const users = getUsers();
+    const employees = users.filter(u => u.role === 'employee');
+
+    if (employees.length === 0) {
+      const p = document.createElement('p');
+      p.textContent = 'No employees found.';
+      leaveCreditsSection.appendChild(p);
+    } else {
+      const labelSelectEmp = document.createElement('label');
+      labelSelectEmp.setAttribute('for', 'select-employee-credit');
+      labelSelectEmp.textContent = 'Select Employee:';
+      leaveCreditsSection.appendChild(labelSelectEmp);
+
+      const selectEmp = document.createElement('select');
+      selectEmp.id = 'select-employee-credit';
+      selectEmp.setAttribute('aria-label', 'Select employee to edit leave credits');
+      employees.forEach(emp => {
+        const opt = document.createElement('option');
+        opt.value = emp.id;
+        opt.textContent = emp.username;
+        selectEmp.appendChild(opt);
+      });
+      leaveCreditsSection.appendChild(selectEmp);
+
+      const labelSick = document.createElement('label');
+      labelSick.setAttribute('for', 'input-sick-credit');
+      labelSick.textContent = 'Sick Leave Credit (days):';
+      leaveCreditsSection.appendChild(labelSick);
+      const inputSick = document.createElement('input');
+      inputSick.type = 'number';
+      inputSick.min = 0;
+      inputSick.id = 'input-sick-credit';
+      inputSick.className = 'input-credit';
+      leaveCreditsSection.appendChild(inputSick);
+
+      const labelVacation = document.createElement('label');
+      labelVacation.setAttribute('for', 'input-vacation-credit');
+      labelVacation.textContent = 'Vacation Leave Credit (days):';
+      leaveCreditsSection.appendChild(labelVacation);
+      const inputVacation = document.createElement('input');
+      inputVacation.type = 'number';
+      inputVacation.min = 0;
+      inputVacation.id = 'input-vacation-credit';
+      inputVacation.className = 'input-credit';
+      leaveCreditsSection.appendChild(inputVacation);
+
+      const updateBtn = document.createElement('button');
+      updateBtn.type = 'button';
+      updateBtn.textContent = 'Update Credits';
+      updateBtn.className = 'btn-update-credit';
+      leaveCreditsSection.appendChild(updateBtn);
+
+      // Load selected employee credits on change
+      function loadSelectedEmployeeCredits() {
+        const empId = selectEmp.value;
+        const emp = employees.find(e => e.id === empId);
+        if (!emp) return;
+        inputSick.value = emp.leaveCredits?.sickLeave ?? DEFAULT_SICK_LEAVE;
+        inputVacation.value = emp.leaveCredits?.vacationLeave ?? DEFAULT_VACATION_LEAVE;
+      }
+      selectEmp.addEventListener('change', loadSelectedEmployeeCredits);
+      loadSelectedEmployeeCredits();
+
+      updateBtn.addEventListener('click', () => {
+        const selectedId = selectEmp.value;
+        const sickVal = Number(inputSick.value);
+        const vacVal = Number(inputVacation.value);
+        if (isNaN(sickVal) || sickVal < 0 || isNaN(vacVal) || vacVal < 0) {
+          alert('Leave credits must be zero or positive numbers.');
+          return;
+        }
+        if (updateEmployeeCredits(selectedId, sickVal, vacVal)) {
+          alert('Leave credits updated successfully.');
+          addAdminActivity('update-credit', `Admin ${user.username} updated leave credits for employee ID ${selectedId}`, user.id);
+          // If updated employee is current user, refresh user data
+          if (selectedId === user.id) refreshUserDataAndRerender(user.id);
+        } else {
+          alert('Error updating leave credits.');
+        }
+      });
+    }
+
+    ////////////////////////
+    // Admin list display
+    ////////////////////////
+
+    const adminListSection = document.createElement('section');
+    adminListSection.className = 'admin-section';
+
+    const adminTitle = document.createElement('h2');
+    adminTitle.textContent = 'Registered Admins';
+    adminListSection.appendChild(adminTitle);
+
+    const admins = users.filter(u => u.role === 'admin');
+    if (admins.length === 0) {
+      const p = document.createElement('p');
+      p.textContent = 'No admins registered yet.';
+      adminListSection.appendChild(p);
+    } else {
+      const tableAdmins = document.createElement('table');
+      tableAdmins.className = 'admin-table';
+      tableAdmins.setAttribute('aria-label', 'Table showing registered admins');
+      const theadAdmins = document.createElement('thead');
+      const trHead = document.createElement('tr');
+      ['Username', 'Registered At'].forEach(t => {
+        const th = document.createElement('th');
+        th.textContent = t;
+        trHead.appendChild(th);
+      });
+      theadAdmins.appendChild(trHead);
+      tableAdmins.appendChild(theadAdmins);
+
+      const tbodyAdmins = document.createElement('tbody');
+      admins.forEach(a => {
+        const tr = document.createElement('tr');
+        const tdUsername = document.createElement('td');
+        tdUsername.textContent = a.username;
+        tr.appendChild(tdUsername);
+
+        const tdReg = document.createElement('td');
+        tdReg.textContent = formatDateTime(a.registeredAt);
+        tr.appendChild(tdReg);
+
+        tbodyAdmins.appendChild(tr);
+      });
+      tableAdmins.appendChild(tbodyAdmins);
+      adminListSection.appendChild(tableAdmins);
+    }
+
+    ////////////////////////
+    // Append all admin dashboard sections
+    ////////////////////////
+
+    const containerDiv = document.createElement('div');
+    containerDiv.className = 'admin-tables';
+
+    containerDiv.appendChild(leaveAppsSection);
+    containerDiv.appendChild(leaveCreditsSection);
+
+    mainContainer.appendChild(containerDiv);
+    mainContainer.appendChild(adminListSection);
+  }
+
+  //////////////////////
+  // Leave Application Approval / Denial (Admin)
+  //////////////////////
+
+  function approveLeaveApplication(appId, adminUser) {
+    const leaveApps = getLeaveApplications();
+    const app = leaveApps.find(a => a.id === appId);
+    if (!app || app.status !== 'pending') return;
+
+    const dayCount = app.dayCount;
+
+    if (app.leaveType === 'sick' || app.leaveType === 'vacation') {
+      // Deduct leave credits from employee if approved
+      const users = getUsers();
+      const emp = users.find(u => u.id === app.userId);
+      if (!emp) return;
+      if (app.leaveType === 'sick') {
+        if ((emp.leaveCredits?.sickLeave ?? 0) < dayCount) {
+          alert(`Cannot approve: Employee has insufficient sick leave credits.`);
+          return;
+        }
+        emp.leaveCredits.sickLeave -= dayCount;
+      } else if (app.leaveType === 'vacation') {
+        if ((emp.leaveCredits?.vacationLeave ?? 0) < dayCount) {
+          alert(`Cannot approve: Employee has insufficient vacation leave credits.`);
+          return;
+        }
+        emp.leaveCredits.vacationLeave -= dayCount;
+      }
+      saveUsers(users);
+    }
+
+    app.status = 'approved';
+    app.reviewedAt = new Date().toISOString();
+    app.adminId = adminUser.id;
+    app.adminName = adminUser.username;
+
+    saveLeaveApplications(leaveApps);
+
+    addAdminActivity('update-leave', `Admin ${adminUser.username} approved leave for ${app.username} (${app.leaveType}): ${formatDate(app.startDate)} to ${formatDate(app.endDate)}`, adminUser.id);
+
+    alert('Leave application approved.');
+
+    // Refresh dashboard for admin and employee
+    refreshUserDataAndRerender(adminUser.id);
+  }
+
+  function denyLeaveApplication(appId, adminUser) {
+    const leaveApps = getLeaveApplications();
+    const app = leaveApps.find(a => a.id === appId);
+    if (!app || app.status !== 'pending') return;
+
+    app.status = 'denied';
+    app.reviewedAt = new Date().toISOString();
+    app.adminId = adminUser.id;
+    app.adminName = adminUser.username;
+
+    saveLeaveApplications(leaveApps);
+
+    addAdminActivity('update-leave', `Admin ${adminUser.username} denied leave for ${app.username} (${app.leaveType}): ${formatDate(app.startDate)} to ${formatDate(app.endDate)}`, adminUser.id);
+
+    alert('Leave application denied.');
+
+    // Refresh dashboard for admin and employee
+    refreshUserDataAndRerender(adminUser.id);
+  }
+
+  //////////////////////
+  // Initialize app
+  //////////////////////
+
+  function init() {
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+      renderDashboard(currentUser);
+    } else {
+      renderAuth();
+    }
+  }
+
+  init();
+})();
+</script>
+<footer>
+  &copy; 2024 Leave Management System. Built for your team's transparency and ease of use.
+</footer>
+</body>
+</html>
+
